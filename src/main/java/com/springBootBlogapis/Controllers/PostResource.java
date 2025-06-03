@@ -1,13 +1,20 @@
 package com.springBootBlogapis.Controllers;
 
+import com.springBootBlogapis.Entity.User;
 import com.springBootBlogapis.Payloads.PostDTO;
 import com.springBootBlogapis.Payloads.PostResponse;
+import com.springBootBlogapis.Repository.UserRepo;
 import com.springBootBlogapis.Service.PostService;
 import com.springBootBlogapis.Utils.AppConstants;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -16,9 +23,27 @@ public class PostResource {
 
     private final PostService postserve;
 
-    public PostResource(PostService postserve) {
+    private final UserRepo userRepo;
+
+    public PostResource(PostService postserve, UserRepo userRepo) {
         this.postserve = postserve;
+        this.userRepo = userRepo;
     }
+
+    //method for getting all posts that belong to a specific user
+    @GetMapping("/user/posts")
+    public ResponseEntity<List<PostDTO>> getMyPosts() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        User user = userRepo.findByUsernameOrEmail(username, username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        List<PostDTO> posts = postserve.getPostsByUserId((long) user.getId());
+        return ResponseEntity.ok(posts);
+    }
+
+
 
 
 

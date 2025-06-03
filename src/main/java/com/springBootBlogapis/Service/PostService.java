@@ -17,5 +17,8 @@ public interface PostService {
 
     void DeletepostbyId(long Id);
 
+    List<PostDTO> getPostsByUserId(Long userId);
+
+
 
 }

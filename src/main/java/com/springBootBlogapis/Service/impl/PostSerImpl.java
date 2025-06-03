@@ -2,16 +2,21 @@ package com.springBootBlogapis.Service.impl;
 
 import com.springBootBlogapis.Entity.Comments;
 import com.springBootBlogapis.Entity.Post;
+import com.springBootBlogapis.Entity.User;
 import com.springBootBlogapis.Exceptions.ResouceNotFoundException;
 import com.springBootBlogapis.Payloads.CommentDTO;
 import com.springBootBlogapis.Payloads.PostDTO;
 import com.springBootBlogapis.Payloads.PostResponse;
 import com.springBootBlogapis.Repository.PostRepo;
+import com.springBootBlogapis.Repository.UserRepo;
 import com.springBootBlogapis.Service.PostService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,14 +28,26 @@ public class PostSerImpl implements PostService {
 
     private final PostRepo postrepo;
 
-    public PostSerImpl(PostRepo postrepo) {
+    private final UserRepo userRepo;
+
+    public PostSerImpl(PostRepo postrepo, UserRepo userRepo) {
         this.postrepo = postrepo;
+        this.userRepo = userRepo;
     }
 
     @Override
     public PostDTO createPost(PostDTO postdto) {
 
-        Post post = maptoEntity(postdto);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName(); // username or email based on your logic
+
+        User user = userRepo.findByUsernameOrEmail(username, username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        Post post = maptoEntity(postdto, user);
+
+
+
 
         Post newpos = postrepo.save(post);
         PostDTO postresponse = maptodto(newpos);
@@ -89,6 +106,13 @@ public class PostSerImpl implements PostService {
         Post post = postrepo.findById(Id).orElseThrow(() -> new ResouceNotFoundException("Post" , "Id" , Id));
          postrepo.delete(post);
     }
+
+    @Override
+    public List<PostDTO> getPostsByUserId(Long userId) {
+        List<Post> posts = postrepo.findByUserId(userId);
+        return posts.stream().map(this::maptodto).collect(Collectors.toList());
+    }
+
     private CommentDTO mapToCommentDto(Comments comment) {
         CommentDTO dto = new CommentDTO();
         dto.setName(comment.getName());
@@ -112,11 +136,12 @@ public class PostSerImpl implements PostService {
         posdto.setComments(commentDTOs);
         return posdto;
     }
-     private  Post maptoEntity(PostDTO postdto){
+     private  Post maptoEntity(PostDTO postdto, User user){
          Post post = new Post();//converting dto to entity
          post.setTitle(postdto.getTitle());
          post.setDescription(postdto.getDescription());
          post.setContent(postdto.getContent());
+         post.setUser(user);
          return post;
 
      }
