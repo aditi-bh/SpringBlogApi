@@ -43,10 +43,6 @@ public class PostResource {
         return ResponseEntity.ok(posts);
     }
 
-
-
-
-
     //add posts to the database
     @PostMapping
     public ResponseEntity<PostDTO> createPost(@Valid  @RequestBody PostDTO postdto){
@@ -54,8 +50,6 @@ public class PostResource {
 
 
     }
-
-
 
 
     //get all posts

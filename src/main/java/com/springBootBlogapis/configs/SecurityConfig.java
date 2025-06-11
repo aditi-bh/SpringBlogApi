@@ -85,7 +85,10 @@ public class SecurityConfig {
         provider.setPasswordEncoder(passwordEncoder());
 
         return new ProviderManager(provider);
+
+
     }
+
 
 
     @Bean

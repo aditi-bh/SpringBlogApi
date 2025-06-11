@@ -44,7 +44,7 @@ public class AuthController {
 
 
 
-
+    //The api for sign in with username and password which are stored in database
     @PostMapping("/signin")
     public ResponseEntity<JWTAuthResponse> authenticateUser(@RequestBody LoginDTO logdto){
         Authentication authentication = authenticationManager.authenticate
@@ -55,14 +55,13 @@ public class AuthController {
         //get a token from tokenProvider Class
         String token = tokenProvider.generateToken(authentication);
 
-
         return ResponseEntity.ok(new JWTAuthResponse(token));
 
     }
 
 
 
-
+//adding the user data in the database
     @PostMapping("/signup")
     public ResponseEntity<String> registerUser(@RequestBody  SignUpDTO signupdto){
 
