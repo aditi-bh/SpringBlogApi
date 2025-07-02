@@ -17,6 +17,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -40,7 +41,8 @@ public class AuthController {
     @Autowired
     private JWTTokenProvider tokenProvider;
 
-
+    @Autowired
+    private PasswordEncoder passwordencoder;
 
 
 
@@ -78,7 +80,7 @@ public class AuthController {
         user.setName(signupdto.getName());
         user.setEmail(signupdto.getEmail());
         user.setUsername(signupdto.getUsername());
-        user.setPassword(signupdto.getPassword());
+        user.setPassword(passwordencoder.encode(signupdto.getPassword()));
 
         Role roles = rolerepository.findByName("ADMIN")
                 .orElseGet(() -> {

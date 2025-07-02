@@ -62,10 +62,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/posts/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/posts/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/posts/{Id}/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/posts/{Id}/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/posts/user/posts").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/posts/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.PUT, "/api/posts/{Id}/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/posts/{Id}/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.GET, "/api/posts/user/posts").hasAnyRole("ADMIN" , "USER")
                         .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
                         .anyRequest().authenticated()
                 );
